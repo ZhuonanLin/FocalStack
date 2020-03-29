@@ -18,3 +18,7 @@ class focalStack:
             shutil.rmtree('./Output/*')
 
 
+    def stack(self):
+        self.align()
+
+
