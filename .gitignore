@@ -1,0 +1,5 @@
+Input/*
+Output/*
+test_homography/*
+*.pyc
+.DS_Store
