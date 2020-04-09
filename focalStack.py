@@ -11,6 +11,7 @@ class focalStack:
         self.images = [cv2.imread(self.inputDir + imName) for imName in sorted(os.listdir(self.inputDir)) 
             if imName.split('.')[-1] in ["jpg", "jpeg", "png"] ]
         self.alignedImages = []
+        self.laplacianImages = []
         self.mergedImage = None
         if not os.path.exists('./Output/'):
             os.mkdir('./Output/')
@@ -21,6 +22,7 @@ class focalStack:
 
     def stack(self):
         self.align()
+        self.laplacian()
 
 
     def align(self):
@@ -73,3 +75,22 @@ class focalStack:
 
         return
         
+    def laplacian(self):
+        laplacianKernelSize = 5
+        gaussianKernelSize = 5
+
+        for im in self.alignedImages:
+            imLaplacian = cv2.Laplacian(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY), cv2.CV_64F, ksize=laplacianKernelSize)
+            imBlur = cv2.GaussianBlur(imLaplacian, (gaussianKernelSize, gaussianKernelSize), sigmaX=0)
+
+            self.laplacianImages.append(imBlur)
+
+        if not os.path.exists('./Output/Laplacian/'):
+            os.mkdir('./Output/Laplacian/')
+        for i in range(len(self.alignedImages)):
+            cv2.imwrite('./Output/Laplacian/Laplacian{}.png'.format(i), self.laplacianImages[i])
+        
+        self.laplacianImages = np.array(self.laplacianImages)
+
+        return
+    
