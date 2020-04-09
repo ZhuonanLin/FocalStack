@@ -23,6 +23,7 @@ class focalStack:
     def stack(self):
         self.align()
         self.laplacian()
+        self.merge()
 
 
     def align(self):
@@ -94,3 +95,27 @@ class focalStack:
 
         return
     
+    def merge(self):
+        if not os.path.exists('./Output/Merged/'):
+            os.mkdir('./Output/Merged/')
+
+        # mask - using the largest Laplacian value from the stack
+        mask = np.argmax(np.abs(self.laplacianImages), axis=0)
+        mergedMask = mask[np.newaxis, :, :, np.newaxis].choose(self.alignedImages).squeeze(axis=0)
+        
+
+        cv2.imwrite('./Output/Merged/merged_mask.png', mergedMask)
+
+
+        # weighted average - use Laplacian value for each image as a weight
+        totalWeight = np.sum(np.abs(self.laplacianImages), axis = 0)
+        mergedWeighted = np.sum(
+            np.divide(
+                np.multiply(self.alignedImages, np.abs(self.laplacianImages)[:, :, :, np.newaxis]), 
+                totalWeight[np.newaxis, :, :, np.newaxis]
+                ),
+            axis=0)
+
+        cv2.imwrite('./Output/Merged/merged_weighted.png', mergedWeighted)
+
+        return
